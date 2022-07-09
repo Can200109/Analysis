@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+  		 <meta charset="utf-8"/>
+		<style>
+			p{font-family:arial; color:red; font-size:26px;	text-align:center}
+		
+			table th{border:1px solid #729EA5;padding:8px;background-color:#ACC8CC;margin:auto;font-family:arial}
+			table td{border:1px solid #729EA5;padding:8px;font-family:arial;margin:auto; background-color:#FFFFFF}
+			body {background-repead:no-repeat;background-attachment:fixed;background-size:100%}
+		</style>
+		<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	</head>
+	<body background="bj.jpeg">
+		<p style="font-famlily:arial;color:red;background-color:#FFFFFF;font-weight:bold">芃麦内部解析专用：一键下载保存 图片/视频/文案/素材</p>
+		<table style="margin:auto; border-collapse:collapse;width:90%">
+
+		<tr>
+			<th>请输入链接</th>
+			<th>
+				<form method="post">
+				<input type="text" id="url" name="jiexi_url" placeholder="粘贴链接，获取素材" width=9px>
+				<input type="button" id="btn-submit" value="提交">
+				</form>
+			</th>
+		</tr>
+		</table>
+		<table style="margin:auto; border-collapse:collapse;width:90%">
+
+		<tr>
+			<th>标题</th>
+			<th>链接</th>
+			
+		</tr>
+		<tr style="font-famlily:arial;color:black;font-weight:bold">
+			<td sytle="text-align:left">视频标题:</td>
+			<td sytle="text-align:left;"><span id="title-text"></span></td>
+		</tr>
+		<tr style="font-famlily:arial;color:black;font-weight:bold">
+			<td sytle="text-align:left">视频作者:</td>
+			<td sytle="text-align:left;"><span id="author-text"></span></td>
+		</tr>
+		<tr style="font-famlily:arial;color:black;font-weight:bold">
+			<td sytle="text-align:left;">作品封面:</td>
+			<td sytle="text-align:left;"><a id="cover-url" href="" target="_blank"><span id="cover-url-text"></span></a></br><img id="cover-image" src=""></td>
+		</tr>
+		<tr style="font-famlily:arial;color:black;font-weight:bold">
+			<td sytle="text-align:left;">作品音乐:</td>
+			<td sytle="text-align:left;"><a id = "music-url" href="" target="_blank"><span id="music-url-text"></span></a></td>
+		</tr>
+		</tr>
+		<tr style="font-famlily:幼圆;color:black;font-weight:bold">
+			<td sytle="text-align:left;">无水印视频:</td>
+			<td sytle="text-align:left;"><a id="video-url" download="true"  href="" target="_blank" referrerpolicy="no-referrer"><span id="video-url-text"></span></a></td>
+		</tr>
+		<tr style="font-famlily:幼圆;color:black;font-weight:bold">
+			<tr style="font-famlily:幼圆;color:black;font-weight:bold">
+				<td sytle="text-align:left;">图片:</td>
+				<td sytle="text-align:left;" id="image-td"></td>
+
+			</tr>
+		</tr>
+		<tr style="font-famlily:幼圆;color:black;font-weight:bold">
+			<tr style="font-famlily:幼圆;color:black;font-weight:bold">
+				<td sytle="text-align:left;">文字:</td>
+				<td sytle="text-align:left;" id="text-td"></td>
+
+			</tr>
+		</tr>
+		</table>
+	</body>
+	<script>
+	$("#btn-submit").click(function () {
+
+		var urlStr=$("#url").val();
+		var dy = 'http://www.pemaiwenhua.top:50027/pengmai/analysis/dy'
+		var xhs ='http://www.pemaiwenhua.top:50027/pengmai/analysis/xhs'
+		function isUrl(url)
+		{
+			try {
+				window.location.href(url);
+			} catch(err) {
+				return false;
+			}
+			return true;
+		}
+		if(urlStr.indexOf("v.douyin.com")!=-1){
+			if (isUrl(urlStr)){
+				post(dy);
+			}else {post0(dy);}
+		}else if (urlStr.indexOf("xhslink.com")!=-1){
+			if (isUrl(urlStr)){
+				post(xhs);
+			}else {post0(xhs);}
+		}
+
+		function post0(url){
+			console.log(urlStr.indexOf("http"))
+			console.log(urlStr.length)
+			console.log(urlStr.substring(urlStr.indexOf("https://"),urlStr.length))
+			urlStr=urlStr.substring(urlStr.indexOf("https://"),urlStr.length)
+			post(url)
+		}
+		function post(url) {
+			axios({
+				method:'POST',
+				url:url,
+				data:{
+					url:urlStr
+				}
+			}).then(function (response) {
+				$("#image-td").text("");
+				$("#image-td a").remove();
+				$("#image-td img").remove();
+				$("#image-td br").remove();
+				$("#text-td span").remove();
+				$("#text-td br").remove();
+				var images=new Array();
+				images=response.data.imageUrls;
+				console.log(response);
+				$("#video-url").attr("href",response.data.videoUrl);
+				$("#video-url-text").text(response.data.videoUrl);
+
+				$("#music-url").attr("href",response.data.musicUrl);
+				$("#music-url-text").text(response.data.musicUrl);
+
+				$("#cover-url").attr("href",response.data.coverUrl);
+				$("#cover-url-text").text(response.data.coverUrl);
+				$("#cover-image").attr("src",response.data.coverUrl);
+
+				$("#title-text").text(response.data.titleUrl);
+
+				$("#author-text").text(response.data.author);
+
+
+				$.each(response.data.imgUrls,
+						function (index,value){
+							var num = index+1;
+							var html = '图片'+num+"<a href=\""+value+"\" target=\"_blank\" referrerpolicy=\"no-referrer\">:"+value +"</span></a><img width=\"20%\" height= \"auto\" src=\""+ value+"\"><br/>"
+							$("#image-td").append(html)
+						}
+				)
+				$.each(response.data.textUrls,function (index,value){
+					var html = "<span>"+value+"</span><br/>"
+					$("#text-td").append(html)
+				})
+
+			})
+		}
+
+
+	})
+</script>
+</html>
